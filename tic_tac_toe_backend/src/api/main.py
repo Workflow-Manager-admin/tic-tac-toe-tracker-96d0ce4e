@@ -7,13 +7,24 @@ from .schemas import UserCreate, UserLogin, UserOut, Token
 from .auth import get_password_hash, verify_password, create_access_token
 from sqlalchemy.orm import Session
 
+from .game import router as game_router
+
 app = FastAPI(
     title="Tic Tac Toe API",
     version="1.0.0",
-    description="API backend for Tic Tac Toe game with user management, session auth, and game state.",
+    description="API backend for Tic Tac Toe game with user management, session auth, game logic, and match history.\n\n"
+                "## Authentication\n"
+                "Authenticate using Bearer JWT token. Protected endpoints require:\n"
+                "  - `Authorization: Bearer <token>`\n\n"
+                "## Game Endpoints\n"
+                "- `/game/start`: Start a new game\n"
+                "- `/game/{game_id}/move`: Make a move in a game\n"
+                "- `/game/{game_id}`: Get game state\n"
+                "- `/game/history`: Get your match history\n",
     openapi_tags=[
         {"name": "auth", "description": "User registration, login, JWT auth"},
         {"name": "system", "description": "System and health check endpoints"},
+        {"name": "game", "description": "Tic Tac Toe game logic endpoints"},
     ]
 )
 
@@ -24,6 +35,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Register Game router
+app.include_router(game_router)
 
 @app.get("/", tags=["system"], summary="Health Check")
 def health_check():
